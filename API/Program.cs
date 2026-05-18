@@ -1,3 +1,5 @@
+using BusinessLayer.IService;
+using BusinessLayer.Service;
 using DataAccessLayer.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -56,6 +58,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(option =>
         builder.Configuration.GetConnectionString("MyDB"));
 });
 
+builder.Services.AddScoped<IServiceBusinessService, ServiceBusinessService>();
+
 var app = builder.Build();
 
 app.UseCors("AllowAll");
@@ -68,6 +72,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapGet("/", () => Results.Text("CarWashingSystem API - no endpoints configured."));
+//app.MapGet("/", () => Results.Redirect("/swagger"));
 
 app.Run();

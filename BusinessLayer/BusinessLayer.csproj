@@ -17,9 +17,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="IService\" />
     <Folder Include="Helpers\" />
+    <Folder Include="IService\" />
     <Folder Include="Dtos\" />
+    <Folder Include="Dtos\" />
+    <Folder Include="IService\" />
+    <Folder Include="Service\" />
     <Folder Include="Service\" />
   </ItemGroup>
 
