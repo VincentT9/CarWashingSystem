@@ -7,12 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Mapping\**" />
+    <EmbeddedResource Remove="Mapping\**" />
+    <None Remove="Mapping\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DataAccessLayer\DataAccessLayer.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="IService\" />
-    <Folder Include="Mapping\" />
+    <Folder Include="Helpers\" />
+    <Folder Include="Dtos\" />
     <Folder Include="Service\" />
   </ItemGroup>
 
