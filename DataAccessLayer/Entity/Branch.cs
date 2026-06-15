@@ -10,6 +10,8 @@ namespace DataAccessLayer.Entity
         {
             BranchID = Guid.NewGuid();
             Bookings = new HashSet<Booking>();
+            WashBays = new HashSet<WashBay>();
+            RecognitionLogs = new HashSet<LicensePlateRecognitionLog>();
         }
 
         public Guid BranchID { get; set; }
@@ -21,5 +23,7 @@ namespace DataAccessLayer.Entity
         public BranchStatusEnum Status { get; set; }
 
         public virtual ICollection<Booking> Bookings { get; set; }
+        public virtual ICollection<WashBay> WashBays { get; set; }
+        public virtual ICollection<LicensePlateRecognitionLog> RecognitionLogs { get; set; }
     }
 }

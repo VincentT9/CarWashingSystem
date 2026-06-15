@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using DataAccessLayer.Enums;
 
 namespace DataAccessLayer.Entity
@@ -10,7 +9,6 @@ namespace DataAccessLayer.Entity
         {
             UserID = Guid.NewGuid();
             CreatedAt = DateTime.UtcNow;
-            Customers = new HashSet<Customer>();
         }
 
         public Guid UserID { get; set; }
@@ -24,6 +22,6 @@ namespace DataAccessLayer.Entity
         public DateTime CreatedAt { get; set; }
 
         public virtual Role Role { get; set; } = null!;
-        public virtual ICollection<Customer> Customers { get; set; }
+        public virtual Customer? Customer { get; set; }
     }
 }

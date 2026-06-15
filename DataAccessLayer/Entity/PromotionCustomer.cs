@@ -13,8 +13,10 @@ namespace DataAccessLayer.Entity
         public Guid PromotionID { get; set; }
         public Guid CustomerID { get; set; }
         public bool IsUsed { get; set; }
+        public int UsageCount { get; set; }
         public DateTime? UsedAt { get; set; }
         public DateTime? SentAt { get; set; }
+        public DateTime? ExpiresAt { get; set; }
 
         public virtual Promotion Promotion { get; set; } = null!;
         public virtual Customer Customer { get; set; } = null!;

@@ -13,6 +13,8 @@ namespace DataAccessLayer.Configurations
             builder.Property(s => s.Description).HasMaxLength(1000);
             builder.Property(s => s.Price).HasPrecision(18, 2);
             builder.Property(s => s.Status).HasConversion<int>();
+            builder.HasIndex(s => s.ServiceName).IsUnique();
+            builder.ToTable(t => t.HasCheckConstraint("CK_Services_Price", "\"Price\" >= 0"));
         }
     }
 }

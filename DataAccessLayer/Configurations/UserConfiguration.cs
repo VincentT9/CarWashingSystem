@@ -15,8 +15,11 @@ namespace DataAccessLayer.Configurations
             builder.Property(u => u.Email).HasMaxLength(200);
             builder.Property(u => u.PhoneNumber).HasMaxLength(50);
             builder.Property(u => u.Status).HasConversion<int>();
-            builder.Property(u => u.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
-            builder.HasMany(u => u.Customers).WithOne(c => c.User).HasForeignKey(c => c.UserID).OnDelete(DeleteBehavior.Cascade);
+            builder.Property(u => u.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            builder.HasIndex(u => u.Username).IsUnique();
+            builder.HasIndex(u => u.Email).IsUnique();
+            builder.HasIndex(u => u.PhoneNumber).IsUnique().HasFilter("\"PhoneNumber\" IS NOT NULL");
+            builder.HasOne(u => u.Customer).WithOne(c => c.User).HasForeignKey<Customer>(c => c.UserID).OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

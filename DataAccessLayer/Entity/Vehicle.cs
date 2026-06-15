@@ -11,6 +11,7 @@ namespace DataAccessLayer.Entity
             VehicleID = Guid.NewGuid();
             CreatedAt = DateTime.UtcNow;
             Bookings = new HashSet<Booking>();
+            RecognitionLogs = new HashSet<LicensePlateRecognitionLog>();
         }
 
         public Guid VehicleID { get; set; }
@@ -25,5 +26,6 @@ namespace DataAccessLayer.Entity
 
         public virtual Customer Customer { get; set; } = null!;
         public virtual ICollection<Booking> Bookings { get; set; }
+        public virtual ICollection<LicensePlateRecognitionLog> RecognitionLogs { get; set; }
     }
 }

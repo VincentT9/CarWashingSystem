@@ -20,8 +20,9 @@ namespace DataAccessLayer.Configurations
             builder.Property(v => v.Model).HasMaxLength(100);
             builder.Property(v => v.Color).HasMaxLength(50);
             builder.Property(v => v.Status).HasConversion<int>();
-            builder.Property(v => v.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
-            builder.HasOne(v => v.Customer).WithMany(c => c.Vehicles).HasForeignKey(v => v.CustomerID).OnDelete(DeleteBehavior.Cascade);
+            builder.Property(v => v.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            builder.HasIndex(v => v.LicensePlate).IsUnique();
+            builder.HasOne(v => v.Customer).WithMany(c => c.Vehicles).HasForeignKey(v => v.CustomerID).OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

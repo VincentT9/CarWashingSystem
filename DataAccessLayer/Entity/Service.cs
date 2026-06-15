@@ -10,6 +10,11 @@ namespace DataAccessLayer.Entity
         {
             ServiceID = Guid.NewGuid();
             BookingDetails = new HashSet<BookingDetail>();
+            PromotionServices = new HashSet<PromotionService>();
+            Rewards = new HashSet<Reward>();
+            TierBenefits = new HashSet<TierBenefit>();
+            BehavioralLogs = new HashSet<BehavioralLog>();
+            FreeServicePromotions = new HashSet<Promotion>();
         }
 
         public Guid ServiceID { get; set; }
@@ -20,5 +25,10 @@ namespace DataAccessLayer.Entity
         public ServiceStatusEnum Status { get; set; }
 
         public virtual ICollection<BookingDetail> BookingDetails { get; set; }
+        public virtual ICollection<PromotionService> PromotionServices { get; set; }
+        public virtual ICollection<Reward> Rewards { get; set; }
+        public virtual ICollection<TierBenefit> TierBenefits { get; set; }
+        public virtual ICollection<BehavioralLog> BehavioralLogs { get; set; }
+        public virtual ICollection<Promotion> FreeServicePromotions { get; set; }
     }
 }

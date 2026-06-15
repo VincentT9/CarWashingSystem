@@ -25,6 +25,14 @@ namespace DataAccessLayer.Context
         public DbSet<Promotion> Promotions { get; set; } = null!;
         public DbSet<PromotionCustomer> PromotionCustomers { get; set; } = null!;
         public DbSet<BehavioralLog> BehavioralLogs { get; set; } = null!;
+        public DbSet<TierBenefit> TierBenefits { get; set; } = null!;
+        public DbSet<CustomerTierHistory> CustomerTierHistories { get; set; } = null!;
+        public DbSet<WashBay> WashBays { get; set; } = null!;
+        public DbSet<Reward> Rewards { get; set; } = null!;
+        public DbSet<RewardRedemption> RewardRedemptions { get; set; } = null!;
+        public DbSet<PromotionService> PromotionServices { get; set; } = null!;
+        public DbSet<BookingPromotion> BookingPromotions { get; set; } = null!;
+        public DbSet<LicensePlateRecognitionLog> LicensePlateRecognitionLogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

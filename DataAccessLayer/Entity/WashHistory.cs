@@ -8,6 +8,7 @@ namespace DataAccessLayer.Entity
         {
             WashHistoryID = Guid.NewGuid();
             CreatedAt = DateTime.UtcNow;
+            PointTransactions = new HashSet<LoyaltyPointTransaction>();
         }
 
         public Guid WashHistoryID { get; set; }
@@ -23,5 +24,6 @@ namespace DataAccessLayer.Entity
         public DateTime CreatedAt { get; set; }
 
         public virtual Booking Booking { get; set; } = null!;
+        public virtual ICollection<LoyaltyPointTransaction> PointTransactions { get; set; }
     }
 }

@@ -13,8 +13,16 @@ namespace DataAccessLayer.Configurations
             builder.Property(c => c.LifetimePoints).HasDefaultValue(0);
             builder.Property(c => c.TotalSpent).HasPrecision(18, 2).HasDefaultValue(0);
             builder.Property(c => c.TotalVisits).HasDefaultValue(0);
-            builder.Property(c => c.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
-            builder.HasOne(c => c.User).WithMany(u => u.Customers).HasForeignKey(c => c.UserID).OnDelete(DeleteBehavior.Cascade);
+            builder.Property(c => c.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            builder.Property(c => c.Version).IsConcurrencyToken();
+            builder.HasIndex(c => c.UserID).IsUnique();
+            builder.ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_Customers_CurrentPoints", "\"CurrentPoints\" >= 0");
+                t.HasCheckConstraint("CK_Customers_LifetimePoints", "\"LifetimePoints\" >= 0");
+                t.HasCheckConstraint("CK_Customers_TotalSpent", "\"TotalSpent\" >= 0");
+                t.HasCheckConstraint("CK_Customers_TotalVisits", "\"TotalVisits\" >= 0");
+            });
             builder.HasOne(c => c.Tier).WithMany(t => t.Customers).HasForeignKey(c => c.TierID).OnDelete(DeleteBehavior.SetNull);
         }
     }

@@ -52,7 +52,7 @@ builder.Services.AddSwaggerGen(option =>
 
 builder.Services.AddDbContext<ApplicationDbContext>(option =>
 {
-    option.UseSqlServer(
+    option.UseNpgsql(
         builder.Configuration.GetConnectionString("MyDB"));
 });
 

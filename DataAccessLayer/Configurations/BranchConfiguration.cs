@@ -13,6 +13,8 @@ namespace DataAccessLayer.Configurations
             builder.Property(b => b.Address).HasMaxLength(500);
             builder.Property(b => b.PhoneNumber).HasMaxLength(50);
             builder.Property(b => b.Status).HasConversion<int>();
+            builder.HasIndex(b => b.BranchName).IsUnique();
+            builder.ToTable(t => t.HasCheckConstraint("CK_Branches_OperatingHours", "\"OpenTime\" IS NULL OR \"CloseTime\" IS NULL OR \"OpenTime\" < \"CloseTime\""));
         }
     }
 }

@@ -14,6 +14,8 @@ namespace DataAccessLayer.Entity
             Transactions = new HashSet<LoyaltyPointTransaction>();
             PromotionCustomers = new HashSet<PromotionCustomer>();
             BehavioralLogs = new HashSet<BehavioralLog>();
+            TierHistories = new HashSet<CustomerTierHistory>();
+            RewardRedemptions = new HashSet<RewardRedemption>();
         }
 
         public Guid CustomerID { get; set; }
@@ -24,7 +26,11 @@ namespace DataAccessLayer.Entity
         public decimal TotalSpent { get; set; }
         public int TotalVisits { get; set; }
         public DateTime? LastVisitDate { get; set; }
+        public DateTime? CurrentTierSince { get; set; }
+        public DateTime? NextTierReviewAt { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public uint Version { get; set; }
 
         public virtual User User { get; set; } = null!;
         public virtual LoyaltyTier? Tier { get; set; }
@@ -33,5 +39,7 @@ namespace DataAccessLayer.Entity
         public virtual ICollection<LoyaltyPointTransaction> Transactions { get; set; }
         public virtual ICollection<PromotionCustomer> PromotionCustomers { get; set; }
         public virtual ICollection<BehavioralLog> BehavioralLogs { get; set; }
+        public virtual ICollection<CustomerTierHistory> TierHistories { get; set; }
+        public virtual ICollection<RewardRedemption> RewardRedemptions { get; set; }
     }
 }
