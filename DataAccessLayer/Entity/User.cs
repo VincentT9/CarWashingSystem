@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using DataAccessLayer.Enums;
 
 namespace DataAccessLayer.Entity
@@ -20,6 +20,9 @@ namespace DataAccessLayer.Entity
         public Guid RoleID { get; set; }
         public UserStatusEnum Status { get; set; }
         public DateTime CreatedAt { get; set; }
+        public bool EmailVerified { get; set; }
+        public string? EmailVerificationToken { get; set; }
+        public DateTime? EmailVerificationTokenExpiry { get; set; }
 
         public virtual Role Role { get; set; } = null!;
         public virtual Customer? Customer { get; set; }
