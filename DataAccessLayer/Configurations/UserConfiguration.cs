@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using DataAccessLayer.Entity;
 
@@ -19,6 +19,8 @@ namespace DataAccessLayer.Configurations
             builder.HasIndex(u => u.Username).IsUnique();
             builder.HasIndex(u => u.Email).IsUnique();
             builder.HasIndex(u => u.PhoneNumber).IsUnique().HasFilter("\"PhoneNumber\" IS NOT NULL");
+            builder.Property(u => u.EmailVerified).HasDefaultValue(false);
+            builder.Property(u => u.EmailVerificationToken).HasMaxLength(100);
             builder.HasOne(u => u.Customer).WithOne(c => c.User).HasForeignKey<Customer>(c => c.UserID).OnDelete(DeleteBehavior.Restrict);
         }
     }
