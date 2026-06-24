@@ -65,10 +65,14 @@ namespace BusinessLayer.Service
 
             if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
             {
-                var phoneExists = await _context.Users
-                    .AnyAsync(u => u.PhoneNumber == request.PhoneNumber);
-                if (phoneExists)
-                    validationErrors.Add(new FluentValidation.Results.ValidationFailure("PhoneNumber", "Phone number is already registered."));
+                var normalizedPhone = NormalizationHelper.NormalizePhone(request.PhoneNumber);
+                if (!string.IsNullOrWhiteSpace(normalizedPhone))
+                {
+                    var phoneExists = await _context.Users
+                        .AnyAsync(u => u.PhoneNumber == normalizedPhone);
+                    if (phoneExists)
+                        validationErrors.Add(new FluentValidation.Results.ValidationFailure("PhoneNumber", "Phone number is already registered."));
+                }
             }
 
             if (validationErrors.Any())
@@ -89,7 +93,7 @@ namespace BusinessLayer.Service
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
                 FullName = request.FullName.Trim(),
                 Email = request.Email.Trim().ToLower(),
-                PhoneNumber = string.IsNullOrWhiteSpace(request.PhoneNumber) ? null : request.PhoneNumber.Trim(),
+                PhoneNumber = NormalizationHelper.NormalizePhone(request.PhoneNumber),
                 RoleID = customerRole.RoleID,
                 Status = UserStatusEnum.Active,
                 EmailVerified = false,
@@ -136,6 +140,7 @@ namespace BusinessLayer.Service
             // 2. Find user by username or email
             var user = await _context.Users
                 .Include(u => u.Role)
+                .Include(u => u.Customer)
                 .FirstOrDefaultAsync(u =>
                     u.Username.ToLower() == request.Username.ToLower() ||
                     u.Email.ToLower() == request.Username.ToLower());
@@ -260,6 +265,9 @@ namespace BusinessLayer.Service
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
             };
+
+            if (user.Customer != null)
+                claims.Add(new Claim("CustomerID", user.Customer.CustomerID.ToString()));
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
