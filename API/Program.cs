@@ -172,6 +172,7 @@ builder.Services.AddScoped<IAdminUserService, AdminUserService>();
 builder.Services.AddScoped<IBehavioralLogService, BehavioralLogService>();
 builder.Services.AddScoped<IServiceCatalogService, ServiceCatalogService>();
 builder.Services.AddScoped<IAdminDashboardReadService, AdminDashboardReadService>();
+builder.Services.AddScoped<IServiceBusinessService, ServiceBusinessService>();
 
 // AI layer
 builder.Services.AddSingleton<AiConversationStore>();
