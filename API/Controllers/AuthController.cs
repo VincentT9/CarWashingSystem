@@ -102,7 +102,7 @@ namespace API.Controllers
         /// Admin-only test endpoint.
         /// </summary>
         [HttpGet("admin-only")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "AdminOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public IActionResult AdminOnly()
@@ -114,7 +114,7 @@ namespace API.Controllers
         /// Customer-only test endpoint.
         /// </summary>
         [HttpGet("customer-only")]
-        [Authorize(Roles = "Customer")]
+        [Authorize(Policy = "CustomerOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public IActionResult CustomerOnly()

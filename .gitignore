@@ -42,6 +42,8 @@ node_modules/
 # Environment
 .env
 .env.*
+appsettings.Local.json
+**/appsettings.*.local.json
 
 # AI
 .ai/
