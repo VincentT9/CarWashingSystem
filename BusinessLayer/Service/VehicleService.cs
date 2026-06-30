@@ -63,7 +63,7 @@ namespace BusinessLayer.Service
             {
                 CustomerID = customerId,
                 LicensePlate = normalizedPlate,
-                VehicleType = request.VehicleType?.Trim(),
+                VehicleType = request.VehicleType,
                 Brand = request.Brand?.Trim(),
                 Model = request.Model?.Trim(),
                 Color = request.Color?.Trim(),
@@ -88,7 +88,7 @@ namespace BusinessLayer.Service
             var vehicle = await _context.Vehicles.FindAsync(vehicleId)
                 ?? throw new KeyNotFoundException("Vehicle not found.");
 
-            if (request.VehicleType != null) vehicle.VehicleType = request.VehicleType.Trim();
+            if (request.VehicleType.HasValue) vehicle.VehicleType = request.VehicleType;
             if (request.Brand != null) vehicle.Brand = request.Brand.Trim();
             if (request.Model != null) vehicle.Model = request.Model.Trim();
             if (request.Color != null) vehicle.Color = request.Color.Trim();

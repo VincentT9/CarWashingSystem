@@ -14,6 +14,7 @@ namespace BusinessLayer.Service.AI
     {
         private readonly IGenerativeAIClient _aiClient;
         private readonly ICustomerAIContextProvider _customerContext;
+        private readonly IServiceSuggestionContextProvider _serviceSuggestionContext;
         private readonly IAdminAIContextProvider _adminContext;
         private readonly AiConversationStore _conversationStore;
         private readonly AiSettings _aiSettings;
@@ -22,6 +23,7 @@ namespace BusinessLayer.Service.AI
         public AiService(
             IGenerativeAIClient aiClient,
             ICustomerAIContextProvider customerContext,
+            IServiceSuggestionContextProvider serviceSuggestionContext,
             IAdminAIContextProvider adminContext,
             AiConversationStore conversationStore,
             IOptions<AiSettings> aiSettings,
@@ -29,6 +31,7 @@ namespace BusinessLayer.Service.AI
         {
             _aiClient = aiClient;
             _customerContext = customerContext;
+            _serviceSuggestionContext = serviceSuggestionContext;
             _adminContext = adminContext;
             _conversationStore = conversationStore;
             _aiSettings = aiSettings.Value;
@@ -42,7 +45,7 @@ namespace BusinessLayer.Service.AI
                 if (string.IsNullOrWhiteSpace(request.Message))
                     throw new InvalidOperationException("Message is required.");
 
-                var context = await _customerContext.GetContextAsync(customerId);
+                var context = await _serviceSuggestionContext.GetContextAsync(customerId);
                 var conversationId = _conversationStore.GetOrCreateConversationId(request.ConversationId);
 
                 if (AiPromptGuard.IsPromptInjectionAttempt(request.Message))

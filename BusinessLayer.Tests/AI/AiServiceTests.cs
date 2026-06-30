@@ -135,9 +135,11 @@ public class AiServiceTests
 
     private static AiService CreateService(FakeAIClient client, CustomerAiContextDto? customerContext = null)
     {
+        var customerContextProvider = new FakeCustomerContextProvider(customerContext ?? CreateCustomerContext());
         return new AiService(
             client,
-            new FakeCustomerContextProvider(customerContext ?? CreateCustomerContext()),
+            customerContextProvider,
+            customerContextProvider,
             new FakeAdminContextProvider(),
             new AiConversationStore(),
             Options.Create(new AiSettings { MaxConversationMessages = 6 }),
@@ -192,7 +194,7 @@ public class AiServiceTests
         }
     }
 
-    private sealed class FakeCustomerContextProvider : ICustomerAIContextProvider
+    private sealed class FakeCustomerContextProvider : ICustomerAIContextProvider, IServiceSuggestionContextProvider
     {
         private readonly CustomerAiContextDto _context;
 

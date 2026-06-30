@@ -1,13 +1,19 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using API.Helpers;
 using API.Middlewares;
 using API.Seed;
+using API.Services;
 using BusinessLayer.Helpers;
 using BusinessLayer.IService;
 using BusinessLayer.IService.AI;
+using BusinessLayer.IService.Loyalty;
+using BusinessLayer.IService.Operations;
 using BusinessLayer.Service;
 using BusinessLayer.Service.AI;
+using BusinessLayer.Service.Loyalty;
+using BusinessLayer.Service.Operations;
 using BusinessLayer.Validators;
 using DataAccessLayer.Context;
 using FluentValidation;
@@ -43,8 +49,21 @@ builder.Services.AddCors(options =>
 });
 
 // ─── Controllers ─────────────────────────────────────────────
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(allowIntegerValues: false));
+    });
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IOperationsService, OperationsService>();
+builder.Services.AddScoped<IBookingReadService>(provider => provider.GetRequiredService<IOperationsService>() as IBookingReadService
+    ?? throw new InvalidOperationException("Operations service must implement IBookingReadService."));
+builder.Services.AddScoped<ILoyaltyService, LoyaltyService>();
+builder.Services.AddScoped<ILoyaltyTierQuery>(provider => provider.GetRequiredService<ILoyaltyService>());
+builder.Services.AddScoped<IWashCompletionService>(provider => (LoyaltyService)provider.GetRequiredService<ILoyaltyService>());
+builder.Services.AddScoped<ILoyaltyMaintenanceService, LoyaltyMaintenanceService>();
+builder.Services.AddScoped<IOperationsSeedService, OperationsSeedService>();
+builder.Services.AddHostedService<LoyaltyMaintenanceHostedService>();
 
 // ─── Swagger + JWT Bearer Authorization ──────────────────────
 builder.Services.AddEndpointsApiExplorer();
@@ -170,6 +189,8 @@ builder.Services.AddScoped<IVehicleOwnershipValidator, VehicleOwnershipValidator
 builder.Services.AddScoped<IWashHistoryService, WashHistoryService>();
 builder.Services.AddScoped<IAdminUserService, AdminUserService>();
 builder.Services.AddScoped<IBehavioralLogService, BehavioralLogService>();
+builder.Services.AddScoped<IBehavioralLogWriter>(provider => provider.GetRequiredService<IBehavioralLogService>() as IBehavioralLogWriter
+    ?? throw new InvalidOperationException("Behavioral log service must implement IBehavioralLogWriter."));
 builder.Services.AddScoped<IServiceCatalogService, ServiceCatalogService>();
 builder.Services.AddScoped<IAdminDashboardReadService, AdminDashboardReadService>();
 builder.Services.AddScoped<IServiceBusinessService, ServiceBusinessService>();
@@ -178,9 +199,15 @@ builder.Services.AddScoped<IServiceBusinessService, ServiceBusinessService>();
 builder.Services.AddSingleton<AiConversationStore>();
 builder.Services.AddHttpClient<IGenerativeAIClient, GeminiClient>();
 if (aiSettings.UseMockCustomerContext)
+{
     builder.Services.AddScoped<ICustomerAIContextProvider, MockCustomerAIContextProvider>();
+    builder.Services.AddScoped<IServiceSuggestionContextProvider>(provider => (IServiceSuggestionContextProvider)provider.GetRequiredService<ICustomerAIContextProvider>());
+}
 else
+{
     builder.Services.AddScoped<ICustomerAIContextProvider, CustomerAIContextProvider>();
+    builder.Services.AddScoped<IServiceSuggestionContextProvider>(provider => (IServiceSuggestionContextProvider)provider.GetRequiredService<ICustomerAIContextProvider>());
+}
 builder.Services.AddScoped<IAdminAIContextProvider, AdminAIContextProvider>();
 builder.Services.AddScoped<IAIService, AiService>();
 

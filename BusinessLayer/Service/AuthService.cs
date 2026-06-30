@@ -83,10 +83,7 @@ namespace BusinessLayer.Service
                 .FirstOrDefaultAsync(r => r.RoleName == "Customer")
                 ?? throw new InvalidOperationException("Customer role not found in the system.");
 
-            // 6. Generate OTP
-            var otpCode = GenerateOtp();
-
-            // 7. Create User (email not verified)
+            // 6. Create User. Email verification is disabled for local/demo flow.
             var user = new User
             {
                 Username = request.Username.Trim(),
@@ -96,12 +93,12 @@ namespace BusinessLayer.Service
                 PhoneNumber = NormalizationHelper.NormalizePhone(request.PhoneNumber),
                 RoleID = customerRole.RoleID,
                 Status = UserStatusEnum.Active,
-                EmailVerified = false,
-                EmailVerificationToken = otpCode,
-                EmailVerificationTokenExpiry = DateTime.UtcNow.AddMinutes(15)
+                EmailVerified = true,
+                EmailVerificationToken = null,
+                EmailVerificationTokenExpiry = null
             };
 
-            // 8. Create linked Customer profile
+            // 7. Create linked Customer profile
             var customer = new Customer
             {
                 UserID = user.UserID,
@@ -114,9 +111,6 @@ namespace BusinessLayer.Service
             await _context.Users.AddAsync(user);
             await _context.Customers.AddAsync(customer);
             await _context.SaveChangesAsync();
-
-            // 9. Send verification email (after save so account exists even if email fails)
-            await _emailService.SendVerificationEmailAsync(user.Email, user.FullName, otpCode);
 
             return new RegisterResponseDto
             {
@@ -152,15 +146,11 @@ namespace BusinessLayer.Service
             if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
                 throw new UnauthorizedAccessException("Invalid username or password.");
 
-            // 4. Check email verification
-            if (!user.EmailVerified)
-                throw new UnauthorizedAccessException("Please verify your email before logging in. Check your inbox for the OTP code.");
-
-            // 5. Check user status
+            // 4. Check user status
             if (user.Status != UserStatusEnum.Active)
                 throw new UnauthorizedAccessException("Your account has been deactivated. Please contact support.");
 
-            // 6. Generate access token
+            // 5. Generate access token
             var accessTokenExpiration = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes);
             var accessToken = GenerateAccessToken(user, accessTokenExpiration);
 
@@ -178,31 +168,17 @@ namespace BusinessLayer.Service
 
         public async Task VerifyEmailAsync(VerifyEmailRequestDto request)
         {
-            // 1. Validate request
+            // Email verification is disabled for local/demo flow.
             var validationResult = await _verifyEmailValidator.ValidateAsync(request);
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
-            // 2. Find user by email
             var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.Email.ToLower() == request.Email.ToLower());
 
             if (user == null)
                 throw new KeyNotFoundException("No account found with this email.");
 
-            // 3. Check if already verified
-            if (user.EmailVerified)
-                throw new InvalidOperationException("Email is already verified.");
-
-            // 4. Check token expiry
-            if (user.EmailVerificationTokenExpiry == null || user.EmailVerificationTokenExpiry < DateTime.UtcNow)
-                throw new InvalidOperationException("OTP code has expired. Please request a new one.");
-
-            // 5. Verify OTP
-            if (user.EmailVerificationToken != request.OtpCode)
-                throw new InvalidOperationException("Invalid OTP code.");
-
-            // 6. Mark email as verified and clear token
             user.EmailVerified = true;
             user.EmailVerificationToken = null;
             user.EmailVerificationTokenExpiry = null;
@@ -212,7 +188,7 @@ namespace BusinessLayer.Service
 
         public async Task ResendOtpAsync(ResendOtpRequestDto request)
         {
-            // 1. Validate request
+            // Email verification is disabled for local/demo flow.
             var validationResult = await _resendOtpValidator.ValidateAsync(request);
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
@@ -223,27 +199,6 @@ namespace BusinessLayer.Service
 
             if (user == null)
                 throw new KeyNotFoundException("No account found with this email.");
-
-            // 3. Check if already verified
-            if (user.EmailVerified)
-                throw new InvalidOperationException("Email is already verified.");
-
-            // 4. Rate limit: don't allow resend if last OTP hasn't expired and was sent less than 1 minute ago
-            if (user.EmailVerificationTokenExpiry != null
-                && user.EmailVerificationTokenExpiry > DateTime.UtcNow.AddMinutes(14))
-            {
-                throw new InvalidOperationException("Please wait at least 1 minute before requesting a new OTP.");
-            }
-
-            // 5. Generate new OTP and update
-            var otpCode = GenerateOtp();
-            user.EmailVerificationToken = otpCode;
-            user.EmailVerificationTokenExpiry = DateTime.UtcNow.AddMinutes(15);
-            _context.Users.Update(user);
-            await _context.SaveChangesAsync();
-
-            // 6. Send email
-            await _emailService.SendVerificationEmailAsync(user.Email, user.FullName, otpCode);
         }
 
         // ─── Private helpers ──────────────────────────────────────────

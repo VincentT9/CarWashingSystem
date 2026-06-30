@@ -11,7 +11,9 @@ namespace BusinessLayer.Validators
                 .NotEmpty().WithMessage("License plate is required.")
                 .MaximumLength(20);
 
-            RuleFor(x => x.VehicleType).MaximumLength(50);
+            RuleFor(x => x.VehicleType)
+                .IsInEnum()
+                .When(x => x.VehicleType.HasValue);
             RuleFor(x => x.Brand).MaximumLength(100);
             RuleFor(x => x.Model).MaximumLength(100);
             RuleFor(x => x.Color).MaximumLength(50);
@@ -22,7 +24,9 @@ namespace BusinessLayer.Validators
     {
         public UpdateVehicleRequestValidator()
         {
-            RuleFor(x => x.VehicleType).MaximumLength(50);
+            RuleFor(x => x.VehicleType)
+                .IsInEnum()
+                .When(x => x.VehicleType.HasValue);
             RuleFor(x => x.Brand).MaximumLength(100);
             RuleFor(x => x.Model).MaximumLength(100);
             RuleFor(x => x.Color).MaximumLength(50);

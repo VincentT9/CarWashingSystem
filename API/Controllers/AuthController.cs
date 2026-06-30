@@ -19,7 +19,7 @@ namespace API.Controllers
 
         /// <summary>
         /// Register a new customer account.
-        /// A 6-digit OTP will be sent to the provided email.
+        /// Email verification is disabled for local/demo flow.
         /// </summary>
         [HttpPost("register")]
         [AllowAnonymous]
@@ -32,7 +32,7 @@ namespace API.Controllers
         }
 
         /// <summary>
-        /// Verify email address using the OTP code sent during registration.
+        /// No-op email verification endpoint for compatibility.
         /// </summary>
         [HttpPost("verify-email")]
         [AllowAnonymous]
@@ -41,12 +41,11 @@ namespace API.Controllers
         public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailRequestDto request)
         {
             await _authService.VerifyEmailAsync(request);
-            return Ok(new { Message = "Email verified successfully. You can now log in." });
+            return Ok(new { Message = "Email verification is disabled. Account is ready to log in." });
         }
 
         /// <summary>
-        /// Resend OTP verification code to the email.
-        /// Rate limited to 1 request per minute.
+        /// No-op resend OTP endpoint for compatibility.
         /// </summary>
         [HttpPost("resend-otp")]
         [AllowAnonymous]
@@ -55,12 +54,11 @@ namespace API.Controllers
         public async Task<IActionResult> ResendOtp([FromBody] ResendOtpRequestDto request)
         {
             await _authService.ResendOtpAsync(request);
-            return Ok(new { Message = "A new OTP code has been sent to your email." });
+            return Ok(new { Message = "Email verification is disabled. No OTP was sent." });
         }
 
         /// <summary>
         /// Authenticate and receive a JWT access token.
-        /// Requires email to be verified first.
         /// Accepts username or email as the Username field.
         /// </summary>
         [HttpPost("login")]

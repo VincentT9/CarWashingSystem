@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLayer.Service
 {
-    public class BehavioralLogService : IBehavioralLogService
+    public class BehavioralLogService : IBehavioralLogService, IBehavioralLogWriter
     {
         private readonly ApplicationDbContext _context;
 
@@ -77,6 +77,27 @@ namespace BusinessLayer.Service
             }
 
             return Encoding.UTF8.GetBytes(sb.ToString());
+        }
+
+        public async Task WriteAsync(BehavioralLogWriteRequest request, CancellationToken cancellationToken = default)
+        {
+            _context.BehavioralLogs.Add(new DataAccessLayer.Entity.BehavioralLog
+            {
+                CustomerID = request.CustomerId,
+                BookingID = request.BookingId,
+                ServiceID = request.ServiceId,
+                PromotionID = request.PromotionId,
+                ActionType = request.ActionType,
+                ActionTime = request.ActionTime ?? DateTime.UtcNow,
+                PointsChanged = request.PointsChanged,
+                SpendingAmount = request.SpendingAmount,
+                RewardUsed = request.RewardUsed,
+                PromotionUsed = request.PromotionUsed,
+                MetadataJson = request.MetadataJson,
+                Notes = request.Notes
+            });
+
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
         private IQueryable<DataAccessLayer.Entity.BehavioralLog> BuildQuery(BehavioralLogFilterDto filter)

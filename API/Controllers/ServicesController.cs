@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
+    [NonController]
     [ApiController]
     [Route("api/[controller]")]
     public class ServicesController : ControllerBase

@@ -15,7 +15,7 @@ namespace DataAccessLayer.Configurations
         {
             builder.HasKey(v => v.VehicleID);
             builder.Property(v => v.LicensePlate).IsRequired().HasMaxLength(50);
-            builder.Property(v => v.VehicleType).HasMaxLength(100);
+            builder.Property(v => v.VehicleType).HasConversion<string>().HasMaxLength(100);
             builder.Property(v => v.Brand).HasMaxLength(100);
             builder.Property(v => v.Model).HasMaxLength(100);
             builder.Property(v => v.Color).HasMaxLength(50);

@@ -7,7 +7,7 @@ namespace BusinessLayer.Dtos.Vehicle
         public Guid VehicleID { get; set; }
         public Guid CustomerID { get; set; }
         public string LicensePlate { get; set; } = null!;
-        public string? VehicleType { get; set; }
+        public VehicleTypeEnum? VehicleType { get; set; }
         public string? Brand { get; set; }
         public string? Model { get; set; }
         public string? Color { get; set; }
@@ -18,7 +18,7 @@ namespace BusinessLayer.Dtos.Vehicle
     public class CreateVehicleRequestDto
     {
         public string LicensePlate { get; set; } = null!;
-        public string? VehicleType { get; set; }
+        public VehicleTypeEnum? VehicleType { get; set; }
         public string? Brand { get; set; }
         public string? Model { get; set; }
         public string? Color { get; set; }
@@ -26,7 +26,7 @@ namespace BusinessLayer.Dtos.Vehicle
 
     public class UpdateVehicleRequestDto
     {
-        public string? VehicleType { get; set; }
+        public VehicleTypeEnum? VehicleType { get; set; }
         public string? Brand { get; set; }
         public string? Model { get; set; }
         public string? Color { get; set; }

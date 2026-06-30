@@ -4,7 +4,7 @@ using BusinessLayer.IService.AI;
 
 namespace BusinessLayer.Service.AI
 {
-    public class CustomerAIContextProvider : ICustomerAIContextProvider
+    public class CustomerAIContextProvider : ICustomerAIContextProvider, IServiceSuggestionContextProvider
     {
         private readonly ICustomerService _customerService;
         private readonly IWashHistoryService _washHistoryService;

@@ -4,7 +4,7 @@ using BusinessLayer.IService.AI;
 namespace BusinessLayer.Service.AI
 {
     /// <summary>Mock context for AI development when real customer data is unavailable.</summary>
-    public class MockCustomerAIContextProvider : ICustomerAIContextProvider
+    public class MockCustomerAIContextProvider : ICustomerAIContextProvider, IServiceSuggestionContextProvider
     {
         public Task<CustomerAiContextDto> GetContextAsync(Guid customerId)
         {

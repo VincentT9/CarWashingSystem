@@ -161,7 +161,7 @@ namespace API.Seed
                     LicensePlate = "51A12345",
                     Brand = "Toyota",
                     Model = "Vios",
-                    VehicleType = "Sedan",
+                    VehicleType = VehicleTypeEnum.Sedan,
                     Color = "White",
                     Status = VehicleStatusEnum.Active
                 });
@@ -202,7 +202,7 @@ namespace API.Seed
                     LicensePlate = "30B67890",
                     Brand = "Hyundai",
                     Model = "Santa Fe",
-                    VehicleType = "SUV",
+                    VehicleType = VehicleTypeEnum.SUV,
                     Color = "Black",
                     Status = VehicleStatusEnum.Active
                 });
@@ -243,7 +243,7 @@ namespace API.Seed
                     LicensePlate = "59C11111",
                     Brand = "Kia",
                     Model = "Morning",
-                    VehicleType = "Hatchback",
+                    VehicleType = VehicleTypeEnum.Hatchback,
                     Color = "Red",
                     Status = VehicleStatusEnum.Active
                 });
@@ -284,7 +284,7 @@ namespace API.Seed
                     LicensePlate = "51F99999",
                     Brand = "Mercedes-Benz",
                     Model = "GLC",
-                    VehicleType = "SUV",
+                    VehicleType = VehicleTypeEnum.SUV,
                     Color = "Silver",
                     Status = VehicleStatusEnum.Active
                 });
