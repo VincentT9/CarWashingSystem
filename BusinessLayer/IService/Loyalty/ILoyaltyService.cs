@@ -27,6 +27,7 @@ namespace BusinessLayer.IService.Loyalty
         Task<OperationResult<PromotionResponse>> UpdatePromotionAsync(Guid id, UpdatePromotionRequest request);
         Task<OperationResult<bool>> DeletePromotionAsync(Guid id);
         Task<OperationResult<PromotionDeliveryResponse>> SendPromotionAsync(Guid promotionId, SendPromotionRequest request);
+        Task<OperationResult<PromotionUsageResponse>> GetPromotionUsageAsync(Guid promotionId, Guid customerId);
         Task<OperationResult<ApplyPromotionResponse>> ApplyPromotionAsync(Guid promotionId, ApplyPromotionRequest request);
 
         Task<OperationResult<TierEvaluationResponse>> EvaluateTierAsync(Guid customerId);

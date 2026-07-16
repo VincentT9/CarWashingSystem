@@ -185,6 +185,12 @@ namespace API.Controllers.Loyalty
             return FromResult(await _loyaltyService.SendPromotionAsync(id, request));
         }
 
+        [HttpGet("promotions/{id:guid}/customers/{customerId:guid}/usage")]
+        public async Task<ActionResult> GetPromotionUsage(Guid id, Guid customerId)
+        {
+            return FromResult(await _loyaltyService.GetPromotionUsageAsync(id, customerId));
+        }
+
         [HttpPost("promotions/{id:guid}/apply")]
         public async Task<ActionResult> ApplyPromotion(Guid id, ApplyPromotionRequest request)
         {

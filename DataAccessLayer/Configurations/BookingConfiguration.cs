@@ -16,7 +16,7 @@ namespace DataAccessLayer.Configurations
             builder.Property(b => b.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             builder.Property(b => b.CancellationReason).HasMaxLength(500);
             builder.Property(b => b.Notes).HasMaxLength(1000);
-            builder.Property(b => b.Version).IsConcurrencyToken();
+            builder.Property(b => b.Version);
             builder.HasIndex(b => new { b.BranchID, b.ScheduledStart, b.BookingStatus });
             builder.HasIndex(b => new { b.WashBayID, b.ScheduledStart, b.ScheduledEnd });
             builder.ToTable(t =>

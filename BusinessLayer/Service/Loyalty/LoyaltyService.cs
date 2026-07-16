@@ -267,10 +267,14 @@ namespace BusinessLayer.Service.Loyalty
 
             if (!string.IsNullOrWhiteSpace(request.IdempotencyKey))
             {
+                var normalizedIdempotencyKey = NormalizeOptional(request.IdempotencyKey);
                 var existing = await _context.RewardRedemptions
                     .AsNoTracking()
                     .Include(redemption => redemption.PointTransactions)
-                    .FirstOrDefaultAsync(redemption => redemption.PointTransactions.Any(transaction => transaction.IdempotencyKey == request.IdempotencyKey));
+                    .FirstOrDefaultAsync(redemption => redemption.PointTransactions.Any(transaction =>
+                        transaction.IdempotencyKey != null &&
+                        (transaction.IdempotencyKey == normalizedIdempotencyKey ||
+                         transaction.IdempotencyKey.StartsWith(normalizedIdempotencyKey + ":"))));
 
                 if (existing is not null)
                 {
@@ -337,6 +341,8 @@ namespace BusinessLayer.Service.Loyalty
 
             _context.RewardRedemptions.Add(redemption);
 
+            var baseIdempotencyKey = NormalizeOptional(request.IdempotencyKey);
+            var transactionLine = 0;
             foreach (var earningTransaction in earningTransactions)
             {
                 if (pointsToSpend <= 0)
@@ -361,9 +367,30 @@ namespace BusinessLayer.Service.Loyalty
                     RemainingPoints = 0,
                     BalanceAfter = customer.CurrentPoints,
                     TransactionType = PointTransactionTypeEnum.Redeem,
-                    IdempotencyKey = NormalizeOptional(request.IdempotencyKey),
+                    IdempotencyKey = BuildTransactionIdempotencyKey(baseIdempotencyKey, ++transactionLine),
                     Description = $"Redeemed reward {reward.RewardName}"
                 });
+            }
+
+            if (pointsToSpend > 0 && customer.CurrentPoints >= pointsToSpend)
+            {
+                customer.CurrentPoints -= pointsToSpend;
+
+                _context.LoyaltyPointTransactions.Add(new LoyaltyPointTransaction
+                {
+                    CustomerID = request.CustomerId,
+                    BookingID = request.BookingId,
+                    RedemptionID = redemption.RedemptionID,
+                    Points = -pointsToSpend,
+                    OriginalPoints = 0,
+                    RemainingPoints = 0,
+                    BalanceAfter = customer.CurrentPoints,
+                    TransactionType = PointTransactionTypeEnum.Redeem,
+                    IdempotencyKey = BuildTransactionIdempotencyKey(baseIdempotencyKey, ++transactionLine),
+                    Description = $"Redeemed reward {reward.RewardName} from current point balance"
+                });
+
+                pointsToSpend = 0;
             }
 
             if (pointsToSpend > 0)
@@ -519,6 +546,41 @@ namespace BusinessLayer.Service.Loyalty
             });
         }
 
+        public async Task<OperationResult<PromotionUsageResponse>> GetPromotionUsageAsync(Guid promotionId, Guid customerId)
+        {
+            if (customerId == Guid.Empty)
+            {
+                return OperationResult<PromotionUsageResponse>.Failure("CustomerId is required.", 400);
+            }
+
+            var promotion = await _context.Promotions
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.PromotionID == promotionId);
+            if (promotion is null)
+            {
+                return OperationResult<PromotionUsageResponse>.Failure("Promotion not found.", 404);
+            }
+
+            var usedCount = await _context.BookingPromotions
+                .AsNoTracking()
+                .CountAsync(item => item.PromotionID == promotionId && item.Booking.CustomerID == customerId);
+            var hasReachedLimit = promotion.UsageLimitPerCustomer.HasValue &&
+                usedCount >= promotion.UsageLimitPerCustomer.Value;
+            var label = promotion.PromotionCode ?? promotion.PromotionName;
+
+            return OperationResult<PromotionUsageResponse>.Success(new PromotionUsageResponse
+            {
+                PromotionId = promotionId,
+                CustomerId = customerId,
+                UsedCount = usedCount,
+                UsageLimitPerCustomer = promotion.UsageLimitPerCustomer,
+                HasReachedLimit = hasReachedLimit,
+                Message = hasReachedLimit
+                    ? $"Mã khuyến mãi {label} đã được khách hàng này sử dụng."
+                    : null
+            });
+        }
+
         public async Task<OperationResult<ApplyPromotionResponse>> ApplyPromotionAsync(Guid promotionId, ApplyPromotionRequest request)
         {
             if (request.BookingId == Guid.Empty || request.CustomerId == Guid.Empty)
@@ -565,16 +627,23 @@ namespace BusinessLayer.Service.Loyalty
             var before = booking.EstimatedTotalAmount;
             var discount = CalculatePromotionDiscount(promotion, before);
             var bonusPoints = promotion.PromotionType == PromotionTypeEnum.BonusPoints ? promotion.BonusPoints : 0;
+            var after = Math.Max(0, before - discount);
 
-            booking.BookingPromotions.Add(new BookingPromotion
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            _context.BookingPromotions.Add(new BookingPromotion
             {
                 BookingID = booking.BookingID,
                 PromotionID = promotion.PromotionID,
                 DiscountAmount = discount,
                 BonusPoints = bonusPoints
             });
-            booking.EstimatedTotalAmount = Math.Max(0, before - discount);
-            booking.UpdatedAt = DateTime.UtcNow;
+
+            await _context.Bookings
+                .Where(item => item.BookingID == booking.BookingID)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(item => item.EstimatedTotalAmount, after)
+                    .SetProperty(item => item.UpdatedAt, DateTime.UtcNow));
 
             var sentPromotion = promotion.PromotionCustomers.FirstOrDefault(item => item.CustomerID == booking.CustomerID);
             if (sentPromotion is not null)
@@ -585,6 +654,9 @@ namespace BusinessLayer.Service.Loyalty
             }
 
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            booking.EstimatedTotalAmount = after;
             await _behavioralLogWriter.WriteAsync(new BehavioralLogWriteRequest
             {
                 CustomerId = booking.CustomerID,
@@ -604,7 +676,7 @@ namespace BusinessLayer.Service.Loyalty
                 DiscountAmount = discount,
                 BonusPoints = bonusPoints,
                 TotalBeforeDiscount = before,
-                TotalAfterDiscount = booking.EstimatedTotalAmount
+                TotalAfterDiscount = after
             });
         }
 
@@ -1084,7 +1156,7 @@ namespace BusinessLayer.Service.Loyalty
                     .CountAsync(item => item.PromotionID == promotion.PromotionID && item.Booking.CustomerID == booking.CustomerID);
                 if (customerUsage >= promotion.UsageLimitPerCustomer.Value)
                 {
-                    return "Promotion usage limit reached for this customer.";
+                    return $"Mã khuyến mãi {promotion.PromotionCode ?? promotion.PromotionName} đã được khách hàng này sử dụng.";
                 }
             }
 
@@ -1268,6 +1340,17 @@ namespace BusinessLayer.Service.Loyalty
         private static string? NormalizeOptional(string? value)
         {
             return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+        }
+
+        private static string? BuildTransactionIdempotencyKey(string? baseKey, int line)
+        {
+            if (string.IsNullOrWhiteSpace(baseKey))
+            {
+                return null;
+            }
+
+            var key = line <= 1 ? baseKey : $"{baseKey}:{line}";
+            return key.Length <= 100 ? key : key[..100];
         }
 
         private static int NormalizePage(int page)

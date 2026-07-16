@@ -63,6 +63,16 @@ namespace BusinessLayer.Dtos.Loyalty
         public int SkippedCount { get; set; }
     }
 
+    public class PromotionUsageResponse
+    {
+        public Guid PromotionId { get; set; }
+        public Guid CustomerId { get; set; }
+        public int UsedCount { get; set; }
+        public int? UsageLimitPerCustomer { get; set; }
+        public bool HasReachedLimit { get; set; }
+        public string? Message { get; set; }
+    }
+
     public class ApplyPromotionRequest
     {
         public Guid BookingId { get; set; }

@@ -3,7 +3,6 @@ using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using API.Helpers;
 using API.Middlewares;
-using API.Seed;
 using API.Services;
 using BusinessLayer.Helpers;
 using BusinessLayer.IService;
@@ -24,6 +23,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
 
 // ─── CORS ────────────────────────────────────────────────────
 var corsSettings = builder.Configuration.GetSection("CorsSettings").Get<CorsSettings>() ?? new CorsSettings();
@@ -152,6 +155,17 @@ var aiSettings = builder.Configuration.GetSection("AiSettings").Get<AiSettings>(
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        context.HttpContext.Response.ContentType = "application/problem+json";
+        await context.HttpContext.Response.WriteAsJsonAsync(new
+        {
+            title = "Too Many Requests",
+            detail = "Bạn đang gửi quá nhiều yêu cầu AI. Vui lòng chờ một chút rồi thử lại.",
+            status = StatusCodes.Status429TooManyRequests
+        }, cancellationToken);
+    };
     options.AddPolicy("AiCustomer", httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
             httpContext.User.Identity?.Name ?? httpContext.Connection.RemoteIpAddress?.ToString() ?? "anon",
@@ -213,10 +227,6 @@ builder.Services.AddScoped<IAIService, AiService>();
 
 // ─── Build ───────────────────────────────────────────────────
 var app = builder.Build();
-
-// ─── Seed demo data ──────────────────────────────────────────
-if (!app.Environment.IsEnvironment("Testing"))
-    await DataSeeder.SeedAsync(app.Services);
 
 // ─── Middleware Pipeline ─────────────────────────────────────
 app.UseGlobalExceptionHandling();
