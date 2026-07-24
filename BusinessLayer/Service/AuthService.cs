@@ -1,3 +1,4 @@
+// AutoWash Pro Business Layer
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
