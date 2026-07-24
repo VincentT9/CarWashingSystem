@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+// AutoWash Pro Data Access Layer
+using Microsoft.EntityFrameworkCore;
 using DataAccessLayer.Entity;
 
 namespace DataAccessLayer.Context
