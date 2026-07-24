@@ -65,7 +65,7 @@ namespace BusinessLayer.Tests.Operations
                 VehicleId = vehicleId,
                 BranchId = branchId,
                 ServiceId = serviceId,
-                BookingStartTime = DateTime.UtcNow.AddHours(2),
+                BookingStartTime = DateTime.Today.AddDays(1).AddHours(10),
                 Note = "Clean wheels"
             };
 
@@ -89,8 +89,8 @@ namespace BusinessLayer.Tests.Operations
                 BookingID = bookingId,
                 CustomerID = customerId,
                 BookingStatus = BookingStatusEnum.Pending,
-                ScheduledStart = DateTime.UtcNow.AddHours(2),
-                ScheduledEnd = DateTime.UtcNow.AddHours(3)
+                ScheduledStart = DateTime.Today.AddDays(1).AddHours(10),
+                ScheduledEnd = DateTime.Today.AddDays(1).AddHours(11)
             };
 
             context.Bookings.Add(booking);
