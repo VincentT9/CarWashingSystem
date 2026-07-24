@@ -34,6 +34,7 @@ namespace BusinessLayer.Tests.Customers
             {
                 UserID = userId,
                 Username = "testcustomer",
+                PasswordHash = "hashedpassword",
                 Email = "customer@example.com",
                 FullName = "Test Customer",
                 PhoneNumber = "0900000000"

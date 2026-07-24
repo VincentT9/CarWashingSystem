@@ -30,7 +30,7 @@ namespace BusinessLayer.Tests.History
             var customerId = Guid.NewGuid();
             _currentCustomerMock.Setup(x => x.GetCurrentCustomerIdAsync()).ReturnsAsync(customerId);
 
-            var branch = new Branch { BranchID = Guid.NewGuid(), BranchName = "District 1 Branch" };
+            var branch = new Branch { BranchID = Guid.NewGuid(), BranchName = "District 1 Branch", Address = "123 District 1" };
             var vehicle = new Vehicle { VehicleID = Guid.NewGuid(), CustomerID = customerId, LicensePlate = "51H12345" };
             var washService = new ServiceEntity { ServiceID = Guid.NewGuid(), ServiceName = "Full Car Wash", Price = 150000 };
 
