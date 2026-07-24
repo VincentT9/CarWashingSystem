@@ -1,5 +1,6 @@
 using BusinessLayer.Dtos.Loyalty;
 using BusinessLayer.IService;
+using BusinessLayer.IService.Operations;
 using BusinessLayer.Service.Loyalty;
 using DataAccessLayer.Context;
 using DataAccessLayer.Entity;
@@ -46,19 +47,19 @@ namespace BusinessLayer.Tests.Loyalty
 
             var request = new CreateLoyaltyTierRequest
             {
-                TierName = "Silver",
-                TierRank = 1,
-                MinSpentThreshold = 1000000,
-                MinVisitsThreshold = 3,
+                Name = "Silver",
+                Rank = 1,
+                MinSpent = 1000000,
+                MinVisits = 3,
                 PointMultiplier = 1.2m,
                 QualificationPeriodMonths = 6
             };
 
             var result = await service.CreateTierAsync(request);
 
-            Assert.True(result.IsSuccess);
+            Assert.True(result.Succeeded);
             Assert.NotNull(result.Data);
-            Assert.Equal("Silver", result.Data.TierName);
+            Assert.Equal("Silver", result.Data.Name);
 
             var tierInDb = await context.LoyaltyTiers.FirstOrDefaultAsync(t => t.TierName == "Silver");
             Assert.NotNull(tierInDb);
@@ -89,11 +90,11 @@ namespace BusinessLayer.Tests.Loyalty
 
             var result = await service.GetPointBalanceAsync(customerId);
 
-            Assert.True(result.IsSuccess);
+            Assert.True(result.Succeeded);
             Assert.NotNull(result.Data);
             Assert.Equal(250, result.Data.CurrentPoints);
             Assert.Equal(1000, result.Data.LifetimePoints);
-            Assert.Equal("Bronze", result.Data.TierName);
+            Assert.Equal("Bronze", result.Data.CurrentTier);
         }
 
         [Fact]
@@ -136,7 +137,7 @@ namespace BusinessLayer.Tests.Loyalty
             var updatedCustomer = await context.Customers.FirstAsync(c => c.CustomerID == customerId);
             Assert.Equal(200000, updatedCustomer.TotalSpent);
             Assert.Equal(1, updatedCustomer.TotalVisits);
-            Assert.Equal(20, updatedCustomer.CurrentPoints); // 200,000 / 10,000 = 20 points
+            Assert.Equal(20, updatedCustomer.CurrentPoints);
         }
     }
 }
