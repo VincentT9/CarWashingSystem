@@ -48,7 +48,7 @@ namespace BusinessLayer.Tests.Loyalty
             Assert.Equal("Summer Special 20%", result.Data.Name);
             Assert.Equal("SUMMER20", result.Data.Code);
 
-            var promotionInDb = await context.Promotions.FirstOrDefaultAsync(p => p.Code == "SUMMER20");
+            var promotionInDb = await context.Promotions.FirstOrDefaultAsync(p => p.PromotionCode == "SUMMER20");
             Assert.NotNull(promotionInDb);
             Assert.Equal(PromotionStatusEnum.Active, promotionInDb.Status);
         }
@@ -66,7 +66,7 @@ namespace BusinessLayer.Tests.Loyalty
             {
                 PromotionID = promotionId,
                 PromotionName = "VIP Voucher",
-                Code = "VIPVOUCHER",
+                PromotionCode = "VIPVOUCHER",
                 Status = PromotionStatusEnum.Active,
                 StartDate = DateTime.UtcNow,
                 EndDate = DateTime.UtcNow.AddDays(15)
