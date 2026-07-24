@@ -1,9 +1,9 @@
 using BusinessLayer.Service;
 using DataAccessLayer.Context;
-using DataAccessLayer.Entity;
 using DataAccessLayer.Enums;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
+using ServiceEntity = DataAccessLayer.Entity.Service;
 
 namespace BusinessLayer.Tests.Services
 {
@@ -23,7 +23,7 @@ namespace BusinessLayer.Tests.Services
         {
             using var context = new ApplicationDbContext(_dbOptions);
 
-            var activeService1 = new Service
+            var activeService1 = new ServiceEntity
             {
                 ServiceID = Guid.NewGuid(),
                 ServiceName = "Premium Wash",
@@ -31,7 +31,7 @@ namespace BusinessLayer.Tests.Services
                 Status = ServiceStatusEnum.Active
             };
 
-            var activeService2 = new Service
+            var activeService2 = new ServiceEntity
             {
                 ServiceID = Guid.NewGuid(),
                 ServiceName = "Basic Wash",
@@ -39,7 +39,7 @@ namespace BusinessLayer.Tests.Services
                 Status = ServiceStatusEnum.Active
             };
 
-            var inactiveService = new Service
+            var inactiveService = new ServiceEntity
             {
                 ServiceID = Guid.NewGuid(),
                 ServiceName = "Deprecated Wash",
@@ -66,8 +66,8 @@ namespace BusinessLayer.Tests.Services
             var activeId = Guid.NewGuid();
             var inactiveId = Guid.NewGuid();
 
-            context.Services.Add(new Service { ServiceID = activeId, ServiceName = "Active", Price = 100000, Status = ServiceStatusEnum.Active });
-            context.Services.Add(new Service { ServiceID = inactiveId, ServiceName = "Inactive", Price = 100000, Status = ServiceStatusEnum.Inactive });
+            context.Services.Add(new ServiceEntity { ServiceID = activeId, ServiceName = "Active", Price = 100000, Status = ServiceStatusEnum.Active });
+            context.Services.Add(new ServiceEntity { ServiceID = inactiveId, ServiceName = "Inactive", Price = 100000, Status = ServiceStatusEnum.Inactive });
             await context.SaveChangesAsync();
 
             var service = new ServiceCatalogService(context);

@@ -5,6 +5,7 @@ using DataAccessLayer.Entity;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
+using ServiceEntity = DataAccessLayer.Entity.Service;
 
 namespace BusinessLayer.Tests.History
 {
@@ -31,7 +32,7 @@ namespace BusinessLayer.Tests.History
 
             var branch = new Branch { BranchID = Guid.NewGuid(), BranchName = "District 1 Branch" };
             var vehicle = new Vehicle { VehicleID = Guid.NewGuid(), CustomerID = customerId, LicensePlate = "51H12345" };
-            var washService = new Service { ServiceID = Guid.NewGuid(), ServiceName = "Full Car Wash", Price = 150000 };
+            var washService = new ServiceEntity { ServiceID = Guid.NewGuid(), ServiceName = "Full Car Wash", Price = 150000 };
 
             var booking = new Booking
             {
