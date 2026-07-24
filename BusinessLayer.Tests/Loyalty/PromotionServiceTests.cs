@@ -32,10 +32,10 @@ namespace BusinessLayer.Tests.Loyalty
 
             var request = new CreatePromotionRequest
             {
-                PromotionName = "Summer Special 20%",
+                Name = "Summer Special 20%",
                 Code = "SUMMER20",
-                DiscountType = PromotionDiscountTypeEnum.Percentage,
-                DiscountValue = 20,
+                Type = "PercentageDiscount",
+                Value = 20,
                 StartDate = DateTime.UtcNow,
                 EndDate = DateTime.UtcNow.AddDays(30),
                 Priority = 1
@@ -45,7 +45,7 @@ namespace BusinessLayer.Tests.Loyalty
 
             Assert.True(result.Succeeded);
             Assert.NotNull(result.Data);
-            Assert.Equal("Summer Special 20%", result.Data.PromotionName);
+            Assert.Equal("Summer Special 20%", result.Data.Name);
             Assert.Equal("SUMMER20", result.Data.Code);
 
             var promotionInDb = await context.Promotions.FirstOrDefaultAsync(p => p.Code == "SUMMER20");

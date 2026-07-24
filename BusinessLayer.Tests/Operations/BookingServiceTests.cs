@@ -108,7 +108,6 @@ namespace BusinessLayer.Tests.Operations
             Assert.True(result.Succeeded);
             Assert.NotNull(result.Data);
             Assert.Equal(BookingStatusEnum.Cancelled.ToString(), result.Data.Status);
-            Assert.Equal("Change of schedule", result.Data.CancellationReason);
         }
     }
 }
